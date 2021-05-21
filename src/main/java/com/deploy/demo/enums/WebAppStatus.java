@@ -8,7 +8,8 @@ public enum WebAppStatus {
 	
 	IN_PROGRESS(0),
 	READY(1),
-    FAILED(2);
+    FAILED(2),
+    STOPPED(3);
 
     private static final Map<Integer,WebAppStatus> lookup 
          = new HashMap<Integer, WebAppStatus>();

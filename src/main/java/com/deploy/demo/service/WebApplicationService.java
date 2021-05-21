@@ -27,9 +27,35 @@ public class WebApplicationService extends AbstractService<WebApplication> {
         return webApplicationRepository.findByName(name);
     }
 
+    @Override
     public WebApplication saveAndReturn(WebApplication webApp){
         return super.saveAndReturn(webApp);
     }
+
+    public WebApplication updateAndReturn(WebApplication entity){
+        WebApplication webApplication=this.findById(entity.getId());
+
+        if(entity.getInstanceId()==null)
+            entity.setInstanceId(webApplication.getInstanceId());
+        if(entity.getUserData()==null)
+            entity.setUserData(webApplication.getUserData());
+        if(entity.getMessage()==null)
+            entity.setMessage(webApplication.getMessage());
+        if(entity.getState()==null)
+            entity.setState(webApplication.getState());
+        if(entity.getUrl()==null)
+            entity.setUrl(webApplication.getUrl());
+
+        return super.saveAndReturn(entity);
+    }
+
+
+
+    @Override
+    public void delete(WebApplication webApp){
+        super.delete(webApp);
+    }
+
 
     @Autowired
     public WebApplicationService(WebApplicationRepository webApplicationRepository) {

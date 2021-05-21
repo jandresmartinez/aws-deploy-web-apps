@@ -36,6 +36,10 @@ public abstract class AbstractService<T extends Serializable> implements IOperat
         return getRepository().save(entity);
     }
 
+    public void delete(T entity) {
+        getRepository().delete(entity);
+    }
+
     protected abstract PagingAndSortingRepository<T, Long> getRepository();
 
 }

@@ -4,6 +4,7 @@ package com.deploy.demo.dto;
 import com.deploy.demo.domain.WebApplication;
 import com.deploy.demo.enums.WebAppStatus;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,8 +14,6 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
-//@JsonFilter("wepAppFilter")
 public class WebApplicationDTO {
 
     private long id;
@@ -23,6 +22,9 @@ public class WebApplicationDTO {
     private String message;
     private String state;
     private Date started;
+    @ApiModelProperty(example = "#! /bin/bash\ncurl -sSL https://raw.githubusercontent.com/bitnami/bitnami-docker-joomla/master/docker-compose.yml > docker-compose.yml\ndocker-compose up -d")
+    private String userData;
+    private String instanceId;
 
 
     public WebApplicationDTO(WebApplicationDTOBuilder webApplicationDTOBuilder) {
@@ -37,6 +39,10 @@ public class WebApplicationDTO {
             setStarted(webApplicationDTOBuilder.webApplications.getStartedDate());
         if(webApplicationDTOBuilder.webApplications.getMessage()!=null)
             setMessage(webApplicationDTOBuilder.webApplications.getMessage());
+        if(webApplicationDTOBuilder.webApplications.getUserData()!=null)
+            setUserData(webApplicationDTOBuilder.webApplications.getUserData());
+        if(webApplicationDTOBuilder.webApplications.getInstanceId()!=null)
+            setInstanceId(webApplicationDTOBuilder.webApplications.getInstanceId());
     }
 
 
@@ -51,6 +57,8 @@ public class WebApplicationDTO {
         webApp.setMessage(dto.getMessage());
         webApp.setName(dto.getName());
         webApp.setStartedDate(dto.getStarted());
+        webApp.setUserData(dto.getUserData());
+        webApp.setInstanceId(dto.getInstanceId());
         webApp.setUrl(dto.getUrl());
         return  webApp;
     }

@@ -3,6 +3,7 @@ package com.deploy.demo.controller;
 import com.deploy.demo.domain.WebApplication;
 import com.deploy.demo.dto.WebApplicationDTO;
 import com.deploy.demo.enums.WebAppStatus;
+import com.deploy.demo.executor.InstanceService;
 import com.deploy.demo.service.WebApplicationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -31,6 +33,7 @@ import java.util.List;
 )
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ActiveProfiles("test")
 class WebApplicationIntegrationTest {
 
     @Autowired
@@ -38,6 +41,9 @@ class WebApplicationIntegrationTest {
 
     @MockBean
     private WebApplicationService webApplicationService;
+
+    @MockBean
+    private InstanceService instanceService;
 
     private WebApplication dummyWebApplication;
 
@@ -48,9 +54,9 @@ class WebApplicationIntegrationTest {
 
         mockedWebApps=  new ArrayList() {
             {
-                add(new WebApplication(1L, "Bitnami1","www.isawsesome.com","Awesome Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus()));
-                add(new WebApplication(99L, "Bitnami2","www.isawsesome2.com","Awesome 2 Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus()));
-                add(new WebApplication(55L, "Bitnami3","www.isawsesome3.com","Awesome 3 Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus()));
+                add(new WebApplication(1L, "Bitnami1","www.isawsesome.com","Awesome Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus(),"",""));
+                add(new WebApplication(99L, "Bitnami2","www.isawsesome2.com","Awesome 2 Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus(),"",""));
+                add(new WebApplication(55L, "Bitnami3","www.isawsesome3.com","Awesome 3 Test",new Date(), WebAppStatus.IN_PROGRESS.getStatus(),"",""));
             }};
         dummyWebApplication=mockedWebApps.get(0);
     }

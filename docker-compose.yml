@@ -1,0 +1,43 @@
+version: '2.1'
+services:
+
+  mysql-db:
+    image: mysql:5.7.26
+    networks:
+      - net-demo
+    container_name: mysql-demo
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always   
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: deploy-demo
+    ports:
+      - "3316:3306"
+
+  demo-api:
+    image: jandresmartinez/bitnavm:latest  
+    networks:
+      - net-demo
+    environment:     
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-demo:3306/deploy-demo?autoReconnect=true
+      - SPRING_DATASOURCE_USERNAME=test
+      - SPRING_DATASOURCE_PASSWORD=test           
+    ports:
+      - 10000:8990     
+    restart: 'unless-stopped'
+    depends_on:
+      - "mysql-db"     
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "1"
+        max-size: "10m"
+ 
+              
+networks:
+  net-demo:
+    name: net-demo-id
+
+    

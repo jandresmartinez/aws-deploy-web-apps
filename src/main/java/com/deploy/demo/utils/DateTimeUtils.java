@@ -14,9 +14,6 @@ public class DateTimeUtils {
 	public static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd";
 	public static final String HARRIS_DATE_FORMAT = "ddMMyy";
 
-	public DateTimeUtils() {}
-
-
 	
 	public static synchronized String getCurrentDateTime(Date date) {
 		if(date == null)

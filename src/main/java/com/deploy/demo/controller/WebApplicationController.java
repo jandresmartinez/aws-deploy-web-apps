@@ -1,12 +1,15 @@
 package com.deploy.demo.controller;
 
 
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.deploy.demo.JsonResponseCreator;
 import com.deploy.demo.domain.WebApplication;
 import com.deploy.demo.dto.RestWebAppsDTOResponseBuilder;
 import com.deploy.demo.dto.WebApplicationDTO;
+import com.deploy.demo.enums.WebAppStatus;
 import com.deploy.demo.exceptions.DuplicatedObjectException;
 import com.deploy.demo.exceptions.ObjectNotFoundException;
+import com.deploy.demo.executor.InstanceService;
 import com.deploy.demo.service.WebApplicationService;
 import com.deploy.demo.utils.Consts;
 import io.swagger.annotations.ApiOperation;
@@ -32,10 +35,12 @@ public class WebApplicationController {
 
 
     private WebApplicationService webApplicationService;
+    private InstanceService instanceService;
 
     @Autowired
-    public WebApplicationController(WebApplicationService webApplicationService) {
+    public WebApplicationController(WebApplicationService webApplicationService, InstanceService instanceService) {
         this.webApplicationService = webApplicationService;
+        this.instanceService = instanceService;
     }
 
     @ApiOperation(value = "One web application", nickname ="oneWebApp", tags = { "Web applications" })
@@ -53,23 +58,66 @@ public class WebApplicationController {
 
     }
 
-    @ApiOperation(value = "Start and create new application", nickname ="oneWebApp", tags = { "Web applications" })
+    @ApiOperation(value = "Start and create new application", response = WebApplicationDTO.class,nickname ="oneWebApp", tags = { "Web applications" })
     @PostMapping(path = "/new-launch")
     public @ResponseBody
-    HttpEntity<MappingJacksonValue> startAndCreateNewWebApp(@RequestBody WebApplicationDTO webApplicationDTO ) {
+    HttpEntity<MappingJacksonValue> startAndCreateNewWebApp( @RequestParam(required = false) boolean useELB,@RequestBody WebApplicationDTO webApplicationDTO ) {
 
         if (webApplicationService.findByName(webApplicationDTO.getName())!=null)
             throw new DuplicatedObjectException("There is already one web app with name "+webApplicationDTO.getName());
 
+        if(webApplicationDTO.getUserData()!=null)
+            instanceService.runInstance(WebApplicationDTO.getWebApplicationEntity(webApplicationDTO),useELB);
         WebApplication webApp = webApplicationService.saveAndReturn(WebApplicationDTO.getWebApplicationEntity(webApplicationDTO));
         WebApplicationDTO webApplicationDTOResponse=WebApplicationDTO.builder().withWebApplication(webApp).build();
         MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(webApplicationDTOResponse);
         return new ResponseEntity<>(mappingJacksonValue,HttpStatus.CREATED);
 
+    }
+
+    @ApiOperation(value = "Update existing application", response = WebApplicationDTO.class,nickname ="oneWebApp", tags = { "Web applications" })
+    @PutMapping(path = "/update-launch")
+    public @ResponseBody
+    HttpEntity<MappingJacksonValue> updateWebApp(@RequestBody WebApplicationDTO webApplicationDTO ) {
+        WebApplication webApplication=webApplicationService.findByName(webApplicationDTO.getName());
+        if (webApplication==null)
+            throw new ObjectNotFoundException("Web Application with name:"+webApplicationDTO.getName()+ " not found.");
+
+        if(webApplicationDTO.getState().equalsIgnoreCase(WebAppStatus.STOPPED.name())){
+            if(webApplication.getInstanceId()==null)
+                throw new ObjectNotFoundException("Impossible to get instance id to stop it!!");
+            instanceService.stopEc2Instance(webApplication.getInstanceId());
+        }
+        webApplicationDTO.setId(webApplication.getId());
+        WebApplication webApp = webApplicationService.saveAndReturn(WebApplicationDTO.getWebApplicationEntity(webApplicationDTO));
+        WebApplicationDTO webApplicationDTOResponse=WebApplicationDTO.builder().withWebApplication(webApp).build();
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(webApplicationDTOResponse);
+        return new ResponseEntity<>(mappingJacksonValue,HttpStatus.CREATED);
 
     }
 
-    @ApiOperation(value = "List of web applications", nickname ="listWebApss", tags = { "Web applications" })
+    @ApiOperation(value = "Delete existing application",nickname ="oneWebApp", tags = { "Web applications" })
+    @DeleteMapping(path = "/delete-launch/{id}")
+    public @ResponseBody
+    HttpEntity terminateWebApp(@PathVariable Long id ) {
+
+
+        WebApplication webApplication = webApplicationService.findOne(id);
+        if (webApplication==null)
+            throw new ObjectNotFoundException("Web Application with id:"+id+ " not found.");
+
+        if (webApplication.getInstanceId()==null)
+            throw new ObjectNotFoundException("Instance id must be provided");
+
+        TerminateInstancesResult request = instanceService.terminateEc2Instance(webApplication.getInstanceId());
+        log.info("Terminate request=>"+request.getSdkResponseMetadata());
+
+        webApplicationService.delete(webApplication);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+    }
+
+    @ApiOperation(value = "List of web applications", nickname ="listWebApps", tags = { "Web applications" })
     @GetMapping(path = "/list-launch")
     public @ResponseBody
     HttpEntity<JsonResponseCreator<WebApplicationDTO>> getAllWebApps(

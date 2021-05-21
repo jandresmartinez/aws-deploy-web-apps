@@ -1,6 +1,7 @@
 package com.deploy.demo.domain;
 
 import com.deploy.demo.enums.WebAppStatus;
+import com.deploy.demo.serializer.BlobStringConverter;
 import com.deploy.demo.serializer.JsonDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,13 @@ public class WebApplication implements Serializable {
 
 	@Column(name = "state")
 	private Integer state=  WebAppStatus.IN_PROGRESS.getStatus();
+
+	@Convert(converter = BlobStringConverter.class)
+	@Column(name = "user_data", nullable = true)
+	private String userData;
+
+	@Column(name = "instance_id")
+	private String instanceId;
 
 
 	
