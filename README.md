@@ -9,7 +9,14 @@ and instantiate them with one web application using "user_data" (https://docs.aw
     git clone https://github.com/jandresmartinez/aws-deploy-web-apps.git
     cd aws-deploy-web-apps
     docker-compose up
- 
+
+Bear in mind that the following properties should be added to the docker-compose.yml:
+
++ AWS_ACCESS_KEY_ID: acces key for your account
++ AWS_ACCESS_SECRET_ACCESS_KEY: secret access key for your account
++ AWS_AMI_ID: AWS id for the AWS instances that will be launched.
++ AWS_SECURITY_GROUP_ID: AWS security group for the triggered instances. REST port should be open.   
++ AWS_KEY_NAME: in case you want to connect to the triggered instances via SSH, indicate it
 
 ## Shortcuts
 * It is using only on demand t2 instances.
