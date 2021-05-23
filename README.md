@@ -16,6 +16,7 @@ and instantiate them with one web application using "user_data" (https://docs.aw
 * One web app is deployed per instance
 * AMI-ID should have Docker installed in the default login user
 * REST API has no authentication method
+* Should open rest port in AWS security group
 
 ## Open Swagger UI web interface
 
