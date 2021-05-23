@@ -82,7 +82,7 @@ class InstanceServiceTest {
     void testStopExistingAWSInstance() throws ExecutionException, InterruptedException {
         log.info("Stopping instance =>"+instanceId);
         StopInstancesResult stopResult = instanceService.stopEc2Instance(instanceId);
-        Assertions.assertThat(stopResult.getStoppingInstances().get(0).getCurrentState().getName()).isEqualTo("running");
+        Assertions.assertThat(stopResult.getStoppingInstances().get(0).getCurrentState().getName()).isNotEqualTo("running");
         Assertions.assertThat(instanceService.describeOneInstance(instanceId).getState().getName()).isEqualToIgnoringCase("stopping");
     }
 
